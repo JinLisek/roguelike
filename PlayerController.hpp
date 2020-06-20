@@ -2,61 +2,55 @@
 
 #include <array>
 #include <string>
-#include <ncurses.h>
-#include <unistd.h>
-#include <cstdlib>
+#include "ncurses.h"
 
+#include "IKeyboardInputObserver.hpp"
 #include "PlayerCharacter.hpp"
+#include "Window.hpp"
 #include "Tile.hpp"
 
-class Window
-{
+class PlayerController : public IKeyboardInputObserver {
 public:
-    Window() {
-        if ( (_windowHandle = initscr()) == nullptr ) {
-            fprintf(stderr, "Error initialising ncurses.\n");
-            exit(EXIT_FAILURE);
+    PlayerController(Window& window) :
+        _window{window}
+    {
+        _window.redrawMap(PlayerCharacter {0, 0}, stringToMap(MAP));
+    }
+
+    void onKeyPressed(int ch) override {
+        switch ( ch ) {
+
+        case KEY_UP:
+            if ( y > 0 )
+            --y;
+            break;
+
+        case KEY_DOWN:
+            if ( y < rows - 1 )
+            ++y;
+            break;
+
+        case KEY_LEFT:
+            if ( x > 0 )
+            --x;
+            break;
+
+        case KEY_RIGHT:
+            if ( x < cols - 1)
+            ++x;
+            break;
         }
 
-        noecho();
-        keypad(_windowHandle, TRUE);
-        start_color();
-        curs_set(0);
-    }
-
-    ~Window() {
-        delwin(_windowHandle);
-        endwin();
-        refresh();
-    }
-
-    void redrawMap(const PlayerCharacter& pc, const std::array<std::array<Tile, 80>, 25>& map) {
-        clear();
-        drawMap(stringToMap(MAP));
-        mvprintw(pc.posY, pc.posX, "@");
-        refresh();
+        _window.redrawMap(PlayerCharacter {x, y}, stringToMap(MAP));
     }
 
 private:
-    void drawMap(const std::array<std::array<Tile, 80>, 25>& map) {
-        for(std::size_t posY = 0; posY < 25; ++posY) {
-            std::string mapRow {};
-            for(std::size_t posX = 0; posX < 80; ++posX) {
-                if (map[posY][posX] == Tile::Dirt)
-                    mapRow += '.';
-                if (map[posY][posX] == Tile::Wall)
-                    mapRow += '#';
-            }
-            mvprintw(posY, 0, mapRow.c_str());
-        }
-    }
+    Window& _window;
+    const unsigned rows  = 25;
+    const unsigned cols   = 80;
+    unsigned x = 0;
+    unsigned y = 0;
 
-    WINDOW * _windowHandle;
-    const int rows  = 25;
-    const int cols   = 80;
-    int x = 0;
-    int y = 0;
-    
     const std::array<std::string, 25> MAP {
         "................................................................................",
         "................................................................................",

@@ -1,10 +1,12 @@
 #include "KeyboardInputHandler.hpp"
 #include "Window.hpp"
+#include "PlayerController.hpp"
 
 int main()
 {
     Window gameWindow{};
-    KeyboardInputHandler{gameWindow}.loop();
+    PlayerController playerController {gameWindow};
+    KeyboardInputHandler{playerController}.loop();
 
     return EXIT_SUCCESS;
 }
