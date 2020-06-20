@@ -9,9 +9,9 @@
 #include "Window.hpp"
 #include "Tile.hpp"
 
-class PlayerController : public IKeyboardInputObserver {
+class GameController : public IKeyboardInputObserver {
 public:
-    PlayerController(Window& window) :
+    GameController(Window& window) :
         _window{window},
         _map{stringToMap(MAP)}
     {
