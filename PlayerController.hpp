@@ -12,36 +12,42 @@
 class PlayerController : public IKeyboardInputObserver {
 public:
     PlayerController(Window& window) :
-        _window{window}
+        _window{window},
+        _map{stringToMap(MAP)}
     {
         _window.redrawMap(PlayerCharacter {0, 0}, stringToMap(MAP));
     }
 
     void onKeyPressed(int ch) override {
+        unsigned newY = y;
+        unsigned newX = x;
         switch ( ch ) {
 
         case KEY_UP:
-            if ( y > 0 )
-            --y;
+            --newY;
             break;
 
         case KEY_DOWN:
-            if ( y < rows - 1 )
-            ++y;
+            ++newY;
             break;
 
         case KEY_LEFT:
-            if ( x > 0 )
-            --x;
+            --newX;
             break;
 
         case KEY_RIGHT:
-            if ( x < cols - 1)
-            ++x;
+            ++newX;
             break;
         }
 
-        _window.redrawMap(PlayerCharacter {x, y}, stringToMap(MAP));
+        if(newX >= 0 and newX < cols and newY >= 0 and newY < rows and _map[newY][newX] != Tile::Wall)
+        {
+            x = newX;
+            y = newY;
+        }
+
+
+        _window.redrawMap(PlayerCharacter {x, y}, _map);
     }
 
 private:
@@ -78,6 +84,8 @@ private:
         "................................................................................",
         "................................................................................"
     };
+
+    std::array<std::array<Tile, 80>, 25> _map;
 
     std::array<std::array<Tile, 80>, 25> stringToMap(const std::array<std::string, 25>& rawMap) {
         std::array<std::array<Tile, 80>, 25> map {};
